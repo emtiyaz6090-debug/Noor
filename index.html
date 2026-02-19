@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deen - Islamic App UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
+        }
+
+        .header-gradient {
+            background: linear-gradient(180deg, #3B4CC0 0%, #6366F1 100%);
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-radius: 24px;
+        }
+
+        .feature-icon {
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-icon:active {
+            transform: scale(0.9);
+        }
+
+        .active-prayer-border {
+            border: 2px solid #3B4CC0;
+            background-color: #EEF2FF;
+        }
+
+        .bottom-nav {
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+        }
+
+        /* Pulse animation for Next Prayer */
+        .live-dot {
+            height: 8px;
+            width: 8px;
+            background-color: #EF4444;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 5px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="max-w-md mx-auto min-h-screen bg-gray-50 pb-28">
+
+    <div class="header-gradient pt-8 pb-24 px-6 relative">
+        <div class="flex justify-between items-center text-white mb-6">
+            <button class="p-2 bg-white/20 rounded-full"><i class="fa-solid fa-bars"></i></button>
+            <h1 class="text-xl font-bold tracking-wide">Deen - Islam</h1>
+            <button class="p-2 bg-white/20 rounded-full"><i class="fa-solid fa-moon"></i></button>
+        </div>
+
+        <div class="flex justify-between items-end text-white/90">
+            <div>
+                <p id="hijri-date" class="text-lg font-semibold">লোড হচ্ছে...</p>
+                <p id="gregorian-date" class="text-sm opacity-80">-- --- ----</p>
+            </div>
+            <div class="text-right flex flex-col items-end">
+                <span class="text-xs bg-white/20 px-2 py-1 rounded-full mb-1">আপনার লোকেশন</span>
+                <p id="location-name" class="text-sm font-medium"><i class="fa-solid fa-location-dot mr-1"></i> ঢাকা, বাংলাদেশ</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="px-5 -mt-16">
+        <div class="glass-card p-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="flex items-center text-indigo-600 font-bold text-sm mb-1">
+                        <i class="fa-solid fa-bell-round mr-2"></i>
+                        পরবর্তী নামাজ: <span id="next-prayer-name" class="ml-1">ফজর</span>
+                        <span class="live-dot"></span>
+                    </div>
+                    <h2 id="next-prayer-time" class="text-5xl font-black text-indigo-950 my-2">--:--</h2>
+                    <div class="flex space-x-4 mt-4">
+                        <div class="bg-blue-50 px-3 py-2 rounded-xl">
+                            <p class="text-[10px] uppercase text-blue-500 font-bold">সেহরি শেষ</p>
+                            <p id="suhur-time" class="text-lg font-bold text-blue-900">--:--</p>
+                        </div>
+                        <div class="bg-orange-50 px-3 py-2 rounded-xl">
+                            <p class="text-[10px] uppercase text-orange-500 font-bold">ইফতারের সময়</p>
+                            <p id="iftar-time" class="text-lg font-bold text-orange-900">--:--</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="opacity-10">
+                    <i class="fa-solid fa-mosque text-7xl text-indigo-900"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex overflow-x-auto space-x-3 px-5 py-6 no-scrollbar">
+        <div class="flex-shrink-0 w-20 glass-card p-3 text-center" id="p-fajr">
+            <p class="text-[10px] font-bold text-gray-400">ফজর</p>
+            <i class="fa-solid fa-cloud-sun text-blue-400 my-1"></i>
+            <p class="text-xs font-bold" id="time-fajr">--:--</p>
+        </div>
+        <div class="flex-shrink-0 w-20 glass-card p-3 text-center" id="p-dhuhr">
+            <p class="text-[10px] font-bold text-gray-400">যোহর</p>
+            <i class="fa-solid fa-sun text-yellow-500 my-1"></i>
+            <p class="text-xs font-bold" id="time-dhuhr">--:--</p>
+        </div>
+        <div class="flex-shrink-0 w-20 glass-card p-3 text-center" id="p-asr">
+            <p class="text-[10px] font-bold text-gray-400">আসর</p>
+            <i class="fa-solid fa-cloud-sun text-orange-400 my-1"></i>
+            <p class="text-xs font-bold" id="time-asr">--:--</p>
+        </div>
+        <div class="flex-shrink-0 w-20 glass-card p-3 text-center" id="p-maghrib">
+            <p class="text-[10px] font-bold text-gray-400">মাগরিব</p>
+            <i class="fa-solid fa-cloud-moon text-indigo-400 my-1"></i>
+            <p class="text-xs font-bold" id="time-maghrib">--:--</p>
+        </div>
+        <div class="flex-shrink-0 w-20 glass-card p-3 text-center" id="p-isha">
+            <p class="text-[10px] font-bold text-gray-400">এশা</p>
+            <i class="fa-solid fa-moon text-indigo-900 my-1"></i>
+            <p class="text-xs font-bold" id="time-isha">--:--</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-4 px-5">
+        <div class="flex flex-col items-center">
+            <div class="feature-icon bg-blue-100 text-blue-600"><i class="fa-solid fa-book-quran text-xl"></i></div>
+            <span class="text-xs font-bold">কুরআন</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="feature-icon bg-green-100 text-green-600"><i class="fa-solid fa-kaaba text-xl"></i></div>
+            <span class="text-xs font-bold">কিবলা</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="feature-icon bg-purple-100 text-purple-600"><i class="fa-solid fa-hand-holding-heart text-xl"></i></div>
+            <span class="text-xs font-bold">দুয়া</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="feature-icon bg-orange-100 text-orange-600"><i class="fa-solid fa-calculator text-xl"></i></div>
+            <span class="text-xs font-bold">তাসবিহ</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="feature-icon bg-red-100 text-red-600"><i class="fa-solid fa-mosque text-xl"></i></div>
+            <span class="text-xs font-bold">নামাজ</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="feature-icon bg-indigo-100 text-indigo-600"><i class="fa-solid fa-calendar-days text-xl"></i></div>
+            <span class="text-xs font-bold">ক্যালেন্ডার</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="feature-icon bg-teal-100 text-teal-600"><i class="fa-solid fa-star-and-crescent text-xl"></i></div>
+            <span class="text-xs font-bold">হাদিস</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="feature-icon bg-amber-100 text-amber-600"><i class="fa-solid fa-heart text-xl"></i></div>
+            <span class="text-xs font-bold">৯৯ নাম</span>
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white bottom-nav flex justify-around items-center py-3 px-2 z-50">
+        <div class="flex flex-col items-center text-indigo-600">
+            <i class="fa-solid fa-house text-xl"></i>
+            <span class="text-[10px] font-bold mt-1">হোম</span>
+        </div>
+        <div class="flex flex-col items-center text-gray-400">
+            <i class="fa-solid fa-clock text-xl"></i>
+            <span class="text-[10px] font-bold mt-1">সময়সূচী</span>
+        </div>
+        <div class="flex flex-col items-center text-gray-400">
+            <i class="fa-solid fa-compass text-xl"></i>
+            <span class="text-[10px] font-bold mt-1">কিবলা</span>
+        </div>
+        <div class="flex flex-col items-center text-gray-400">
+            <i class="fa-solid fa-gear text-xl"></i>
+            <span class="text-[10px] font-bold mt-1">সেটিংস</span>
+        </div>
+    </nav>
+
+    <script>
+        // GPS based Time Fetching logic
+        async function fetchPrayerTimes() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    
+                    try {
+                        const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=1`);
+                        const data = await res.json();
+                        const t = data.data.timings;
+                        
+                        // Update UI
+                        document.getElementById('time-fajr').innerText = t.Fajr;
+                        document.getElementById('time-dhuhr').innerText = t.Dhuhr;
+                        document.getElementById('time-asr').innerText = t.Asr;
+                        document.getElementById('time-maghrib').innerText = t.Maghrib;
+                        document.getElementById('time-isha').innerText = t.Isha;
+                        
+                        document.getElementById('suhur-time').innerText = t.Imsak || t.Fajr;
+                        document.getElementById('iftar-time').innerText = t.Maghrib;
+                        
+                        // Date Info
+                        document.getElementById('hijri-date').innerText = `${data.data.date.hijri.day} ${data.data.date.hijri.month.en} ${data.data.date.hijri.year}`;
+                        document.getElementById('gregorian-date').innerText = data.data.date.readable;
+                        
+                        setNextPrayer(t);
+                    } catch (err) {
+                        console.error("API Error");
+                    }
+                });
+            }
+        }
+
+        function setNextPrayer(times) {
+            const now = new Date();
+            const hour = now.getHours();
+            const min = now.getMinutes();
+            const currentTime = hour * 60 + min;
+
+            const schedule = [
+                { name: 'ফজর', time: times.Fajr },
+                { name: 'যোহর', time: times.Dhuhr },
+                { name: 'আসর', time: times.Asr },
+                { name: 'মাগরিব', time: times.Maghrib },
+                { name: 'এশা', time: times.Isha }
+            ];
+
+            let next = schedule[0];
+            for (let p of schedule) {
+                const [h, m] = p.time.split(':').map(Number);
+                if ((h * 60 + m) > currentTime) {
+                    next = p;
+                    break;
+                }
+            }
+            
+            document.getElementById('next-prayer-name').innerText = next.name;
+            document.getElementById('next-prayer-time').innerText = next.time;
+        }
+
+        window.onload = fetchPrayerTimes;
+    </script>
+</body>
+                                                               </html>
